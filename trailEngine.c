@@ -1,31 +1,24 @@
-#include <stdio.h>
+#include <ncurses.h>
 
 void passagePrint(char* data) {
-    printf("%s\n", data);
+    printw("%s\n", data);
     int continuePassage = 0;
-    int addedLines = 0;
-    while(!continuePassage) {
-        printf("[C]ontinue, [S]ave, [L]oad\n");
-        char choice = 0;
-        scanf( " %c", &choice);
+    printw("[C]ontinue, [s]ave, [l]oad\n");
+    refresh();
+    while(!continuePassage) {  
+        char choice = getch();
         if (choice == 'c' || choice == 'C') {
             continuePassage = 1;
-            addedLines = addedLines + 2;
         } else if (choice == 's' || choice == 'S') {
-            printf("Saving is not implemented.\n");
-            addedLines = addedLines + 3;
+            printw("Saving is not implemented.\n");
+            refresh();
         } else if (choice == 'l' || choice == 'L') {
-            printf("Loading is not implemented.\n");
-            addedLines = addedLines + 3;
-        } else {
-            printf("Invalid option.\n");
-            addedLines = addedLines + 3;
+            printw("Loading is not implemented.\n");
+            refresh();
         }
     }
-    for(int i=0;i<addedLines;i++) {
-      printf("\x1b[1F\x1b[2K");
-    }
-    printf("\n");
+    printw("\n");
+    refresh();
     return;
 }
 
@@ -42,6 +35,7 @@ int advancePassage(int* passagePointer) {
             return 0;
             break;
         default:
+            printw("Passage %d is undefined, terminating program.\n", *passagePointer);
             return 1;
             break;
     }
@@ -49,10 +43,18 @@ int advancePassage(int* passagePointer) {
 
 
 int main() {
+    initscr();
+    raw();
+    keypad(stdscr, TRUE);
+    noecho();
     int passage = 0;
     int exit = 0;
     while(!exit) {
         exit = advancePassage(&passage);
     }
+    printw("Program has terminated. Press any key to continue.\n");
+    refresh();
+    getch();
+    endwin();
     return 0;
 }
